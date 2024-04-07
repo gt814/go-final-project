@@ -1,15 +1,22 @@
 package main
 
 import (
-	"fmt"
 	"github.com/go-chi/chi/v5"
 	"go-final-project/config"
+	"go-final-project/store"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 )
 
 func main() {
+	db, err := store.OpenDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
 	r := chi.NewRouter()
 
 	// Define a directory for static files.
@@ -21,11 +28,10 @@ func main() {
 
 	//Start web server.
 	port := strconv.Itoa(config.GetPort())
-	fmt.Println("start listening on the port=", port)
+	log.Println("Start listening on the port=", port)
 
 	if err := http.ListenAndServe(":"+port, r); err != nil {
-		err = fmt.Errorf("start web server, err = %w", err)
-		fmt.Println(err)
+		log.Fatal("Start web server, err = %w", err)
 		return
 	}
 }

@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"go-final-project/config"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"strconv"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func requestJSON(apipath string, values map[string]any, method string) ([]byte, error) {
@@ -35,7 +35,7 @@ func requestJSON(apipath string, values map[string]any, method string) ([]byte, 
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
-	if len(Token) > 0 {
+	if len(config.GetToken()) > 0 {
 		jar, err := cookiejar.New(nil)
 		if err != nil {
 			return nil, err
@@ -43,7 +43,7 @@ func requestJSON(apipath string, values map[string]any, method string) ([]byte, 
 		jar.SetCookies(req.URL, []*http.Cookie{
 			{
 				Name:  "token",
-				Value: Token,
+				Value: config.GetToken(),
 			},
 		})
 		client.Jar = jar
@@ -162,7 +162,7 @@ func TestAddTask(t *testing.T) {
 		{"today", "Шмитнес", "", ""},
 	}
 	check()
-	if FullNextDate {
+	if config.GetFullNextDate() {
 		tbl = []task{
 			{"20240129", "Сходить в магазин", "", "w 1,3,5"},
 		}

@@ -3,11 +3,11 @@ package tests
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"go-final-project/config"
 	"net/http"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func addTask(t *testing.T, task task) string {
@@ -26,7 +26,7 @@ func addTask(t *testing.T, task task) string {
 
 func getTasks(t *testing.T, search string) []map[string]string {
 	url := "api/tasks"
-	if Search {
+	if config.GetSearch() {
 		url += "?search=" + search
 	}
 	body, err := requestJSON(url, nil, http.MethodGet)
@@ -97,7 +97,7 @@ func TestTasks(t *testing.T) {
 	tasks = getTasks(t, "")
 	assert.Equal(t, len(tasks), 6)
 
-	if !Search {
+	if !config.GetSearch() {
 		return
 	}
 	tasks = getTasks(t, "УК")

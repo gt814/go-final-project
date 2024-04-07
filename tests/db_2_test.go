@@ -1,7 +1,8 @@
 package tests
 
 import (
-	"os"
+	"go-final-project/config"
+	"go-final-project/store"
 	"testing"
 	"time"
 
@@ -24,19 +25,17 @@ func count(db *sqlx.DB) (int, error) {
 }
 
 func openDB(t *testing.T) *sqlx.DB {
-	dbfile := DBFile
-	envFile := os.Getenv("TODO_DBFILE")
-	if len(envFile) > 0 {
-		dbfile = envFile
-	}
+	dbfile := config.GetDBFile()
 	db, err := sqlx.Connect("sqlite3", dbfile)
 	assert.NoError(t, err)
 	return db
 }
 
 func TestDB(t *testing.T) {
-	db := openDB(t)
+	//db := openDB(t)
+	db, err := store.OpenDB()
 	defer db.Close()
+	assert.NoError(t, err)
 
 	before, err := count(db)
 	assert.NoError(t, err)

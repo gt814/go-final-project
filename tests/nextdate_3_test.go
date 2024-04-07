@@ -2,12 +2,12 @@ package tests
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"go-final-project/config"
 	"net/url"
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 type nextDate struct {
@@ -53,7 +53,7 @@ func TestNextDate(t *testing.T) {
 		}
 	}
 	check()
-	if !FullNextDate {
+	if !config.GetFullNextDate() {
 		return
 	}
 	tbl = []nextDate{

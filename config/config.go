@@ -5,11 +5,34 @@ import (
 	"strconv"
 )
 
-// GetPort returns the port on which the application will listen for requests.
 func GetPort() int {
-	port, _ := strconv.Atoi(os.Getenv("TODO_PORT"))
-	if port != 0 {
-		return port
+	todoPort := os.Getenv("TODO_PORT")
+	if len(todoPort) > 0 {
+		if eport, err := strconv.ParseInt(todoPort, 10, 32); err == nil {
+			port = int(eport)
+		}
 	}
-	return Port
+
+	return port
+}
+
+func GetDBFile() string {
+	todoDbFile := os.Getenv("TODO_DBFILE")
+
+	if len(todoDbFile) > 0 {
+		return todoDbFile
+	}
+	return dBFile
+}
+
+func GetFullNextDate() bool {
+	return fullNextDate
+}
+
+func GetSearch() bool {
+	return search
+}
+
+func GetToken() string {
+	return token
 }

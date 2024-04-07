@@ -10,3 +10,4 @@
 
  # Запуск тестов
  go test -run ^TestApp$ ./tests
+ go test -run ^TestDB$ ./tests
