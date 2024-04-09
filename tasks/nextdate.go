@@ -28,7 +28,7 @@ func NextDate(now time.Time, strDate string, repeat string) (string, error) {
 		value = repeatFields[1]
 	}
 
-	var nextDate time.Time
+	nextDate := date
 	switch rule {
 	case "d":
 		if value == "" {
@@ -38,13 +38,11 @@ func NextDate(now time.Time, strDate string, repeat string) (string, error) {
 		if err != nil || days < 1 || days > 400 {
 			return "", errors.New("invalid repeat format")
 		}
-		nextDate = date.AddDate(0, 0, days)
 		for now.After(nextDate) {
 			nextDate = nextDate.AddDate(0, 0, days)
 		}
 
 	case "y":
-		nextDate = date.AddDate(1, 0, 0)
 		for now.After(nextDate) {
 			nextDate = nextDate.AddDate(1, 0, 0)
 		}
