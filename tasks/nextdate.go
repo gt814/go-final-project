@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"errors"
+	//"log"
 	"strconv"
 	"strings"
 	"time"
@@ -38,13 +39,34 @@ func NextDate(now time.Time, strDate string, repeat string) (string, error) {
 		if err != nil || days < 1 || days > 400 {
 			return "", errors.New("invalid repeat format")
 		}
+		nextDate = nextDate.AddDate(0, 0, days)
 		for now.After(nextDate) {
 			nextDate = nextDate.AddDate(0, 0, days)
 		}
-
 	case "y":
+		nextDate = nextDate.AddDate(1, 0, 0)
 		for now.After(nextDate) {
 			nextDate = nextDate.AddDate(1, 0, 0)
+		}
+	case "w":
+		targetWeekdays := make(map[time.Weekday]bool)
+		for _, dayStr := range strings.Split(repeatFields[1], ",") {
+			dayInt, err := strconv.Atoi(dayStr)
+			if err != nil || dayInt < 1 || dayInt > 7 {
+				return "", errors.New("invalid weekday format")
+			}
+			if dayInt == 7 {
+				dayInt = 0
+			}
+			targetWeekdays[time.Weekday(dayInt)] = true
+		}
+
+		nextDate = nextDate.AddDate(0, 0, 1)
+		for {
+			if now.Before(nextDate) && targetWeekdays[nextDate.Weekday()] {
+				break
+			}
+			nextDate = nextDate.AddDate(0, 0, 1)
 		}
 
 	default:
