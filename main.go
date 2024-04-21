@@ -99,7 +99,7 @@ func addTask(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err = fmt.Errorf("read body, err=%w", err)
 		fmt.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		makeHttpResponse(w, Response{Error: err.Error()}, http.StatusInternalServerError)
 		return
 	}
 
@@ -107,7 +107,7 @@ func addTask(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err = fmt.Errorf("unmarshal task, err=%w", err)
 		fmt.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		makeHttpResponse(w, Response{Error: err.Error()}, http.StatusBadRequest)
 		return
 	}
 
