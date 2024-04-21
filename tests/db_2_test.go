@@ -1,41 +1,25 @@
 package tests
 
 import (
+	"github.com/jmoiron/sqlx"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/stretchr/testify/assert"
 	"go-final-project/config"
 	"go-final-project/store"
 	"testing"
 	"time"
-
-	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/stretchr/testify/assert"
 )
-
-type Task struct {
-	ID      int64  `db:"id"`
-	Date    string `db:"date"`
-	Title   string `db:"title"`
-	Comment string `db:"comment"`
-	Repeat  string `db:"repeat"`
-}
 
 func count(db *sqlx.DB) (int, error) {
 	var count int
 	return count, db.Get(&count, `SELECT count(id) FROM scheduler`)
 }
 
-func openDB(t *testing.T) *sqlx.DB {
-	dbfile := config.GetDBFile()
-	db, err := sqlx.Connect("sqlite3", dbfile)
-	assert.NoError(t, err)
-	return db
-}
-
 func TestDB(t *testing.T) {
-	//db := openDB(t)
-	db, err := store.OpenDB()
-	defer db.Close()
+	dbPath := config.GetDBFileTestPath()
+	db, err := store.OpenDB(dbPath)
 	assert.NoError(t, err)
+	defer db.Close()
 
 	before, err := count(db)
 	assert.NoError(t, err)
@@ -48,7 +32,7 @@ func TestDB(t *testing.T) {
 
 	id, err := res.LastInsertId()
 
-	var task Task
+	var task store.Task
 	err = db.Get(&task, `SELECT * FROM scheduler WHERE id=?`, id)
 	assert.NoError(t, err)
 	assert.Equal(t, id, task.ID)

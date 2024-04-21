@@ -3,29 +3,28 @@ package store
 import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
-	"go-final-project/config"
 	"log"
 	"os"
 	"path/filepath"
 )
 
-func OpenDB() (*sqlx.DB, error) {
+func OpenDB(path string) (*sqlx.DB, error) {
 	basePath, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 
-	dbPath := filepath.Join(basePath, config.GetDBFile())
-	log.Println("Path to database file:", dbPath)
+	fullDbPath := filepath.Join(basePath, path)
+	log.Println("Path to database file:", fullDbPath)
 
 	//If an error occurs, the database file does not exist and needs to be created
-	_, err = os.Stat(dbPath)
+	_, err = os.Stat(fullDbPath)
 	install := false
 	if err != nil {
 		install = true
 	}
 
-	db, err := sqlx.Connect("sqlite3", dbPath)
+	db, err := sqlx.Connect("sqlite3", fullDbPath)
 	if err != nil {
 		return nil, err
 	}

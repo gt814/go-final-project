@@ -16,13 +16,17 @@ func GetPort() int {
 	return port
 }
 
-func GetDBFile() string {
+func GetDBFileAppPath() string {
 	todoDbFile := os.Getenv("TODO_DBFILE")
 
 	if len(todoDbFile) > 0 {
 		return todoDbFile
 	}
-	return dBFile
+	return dbFile
+}
+
+func GetDBFileTestPath() string {
+	return dBFileTestPath + GetDBFileAppPath()
 }
 
 func GetFullNextDate() bool {

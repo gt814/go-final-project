@@ -1,4 +1,4 @@
-package tasks
+package datetask
 
 import (
 	"errors"
@@ -23,18 +23,18 @@ func NextDate(now time.Time, strDate string, repeat string) (string, error) {
 	}
 
 	rule := repeatFields[0]
-	value := ""
+	repeatValue := ""
 	if len(repeatFields) > 1 {
-		value = repeatFields[1]
+		repeatValue = repeatFields[1]
 	}
 
 	nextDate := date
 	switch rule {
 	case "d":
-		if value == "" {
+		if repeatValue == "" {
 			return "", errors.New("invalid repeat format")
 		}
-		days, err := strconv.Atoi(value)
+		days, err := strconv.Atoi(repeatValue)
 		if err != nil || days < 1 || days > 400 {
 			return "", errors.New("invalid repeat format")
 		}
@@ -48,8 +48,11 @@ func NextDate(now time.Time, strDate string, repeat string) (string, error) {
 			nextDate = nextDate.AddDate(1, 0, 0)
 		}
 	case "w":
+		if repeatValue == "" {
+			return "", errors.New("invalid repeat format")
+		}
 		targetWeekdays := make(map[time.Weekday]bool)
-		for _, dayStr := range strings.Split(repeatFields[1], ",") {
+		for _, dayStr := range strings.Split(repeatValue, ",") {
 			dayInt, err := strconv.Atoi(dayStr)
 			if err != nil || dayInt < 1 || dayInt > 7 {
 				return "", errors.New("invalid weekday format")

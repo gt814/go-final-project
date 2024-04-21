@@ -4,14 +4,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"go-final-project/config"
+	"go-final-project/store"
 	"io"
+	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func requestJSON(apipath string, values map[string]any, method string) ([]byte, error) {
@@ -74,30 +77,25 @@ func postJSON(apipath string, values map[string]any, method string) (map[string]
 	return m, err
 }
 
-type task struct {
-	date    string
-	title   string
-	comment string
-	repeat  string
-}
-
 func TestAddTask(t *testing.T) {
-	db := openDB(t)
+	dbPath := config.GetDBFileTestPath()
+	db, err := store.OpenDB(dbPath)
+	assert.NoError(t, err)
 	defer db.Close()
 
-	tbl := []task{
-		{"20240129", "", "", ""},
-		{"20240192", "Qwerty", "", ""},
-		{"28.01.2024", "Заголовок", "", ""},
-		{"20240112", "Заголовок", "", "w"},
-		{"20240212", "Заголовок", "", "ooops"},
+	tbl := []store.Task{
+		{Date: "20240129", Title: "", Comment: "", Repeat: ""},
+		{Date: "20240192", Title: "Qwerty", Comment: "", Repeat: ""},
+		{Date: "28.01.2024", Title: "Заголовок", Comment: "", Repeat: ""},
+		{Date: "20240112", Title: "Заголовок", Comment: "", Repeat: "w"},
+		{Date: "20240212", Title: "Заголовок", Comment: "", Repeat: "ooops"},
 	}
 	for _, v := range tbl {
 		m, err := postJSON("api/task", map[string]any{
-			"date":    v.date,
-			"title":   v.title,
-			"comment": v.comment,
-			"repeat":  v.repeat,
+			"date":    v.Date,
+			"title":   v.Title,
+			"comment": v.Comment,
+			"repeat":  v.Repeat,
 		}, http.MethodPost)
 		assert.NoError(t, err)
 
@@ -110,15 +108,16 @@ func TestAddTask(t *testing.T) {
 
 	check := func() {
 		for _, v := range tbl {
-			today := v.date == "today"
+			today := v.Date == "today"
 			if today {
-				v.date = now.Format(`20060102`)
+				v.Date = now.Format(`20060102`)
 			}
+			log.Println("v=", v) //delete this print before merge
 			m, err := postJSON("api/task", map[string]any{
-				"date":    v.date,
-				"title":   v.title,
-				"comment": v.comment,
-				"repeat":  v.repeat,
+				"date":    v.Date,
+				"title":   v.Title,
+				"comment": v.Comment,
+				"repeat":  v.Repeat,
 			}, http.MethodPost)
 			assert.NoError(t, err)
 
@@ -127,7 +126,7 @@ func TestAddTask(t *testing.T) {
 				t.Errorf("Неожиданная ошибка %v для задачи %v", e, v)
 				continue
 			}
-			var task Task
+			var task store.Task
 			var mid any
 			mid, ok = m["id"]
 			if !ok {
@@ -137,12 +136,14 @@ func TestAddTask(t *testing.T) {
 			id := fmt.Sprint(mid)
 
 			err = db.Get(&task, `SELECT * FROM scheduler WHERE id=?`, id)
+			log.Println("id=", id)     //delete this print before merge
+			log.Println("task=", task) //delete this print before merge
 			assert.NoError(t, err)
 			assert.Equal(t, id, strconv.FormatInt(task.ID, 10))
 
-			assert.Equal(t, v.title, task.Title)
-			assert.Equal(t, v.comment, task.Comment)
-			assert.Equal(t, v.repeat, task.Repeat)
+			assert.Equal(t, v.Title, task.Title)
+			assert.Equal(t, v.Comment, task.Comment)
+			assert.Equal(t, v.Repeat, task.Repeat)
 			if task.Date < now.Format(`20060102`) {
 				t.Errorf("Дата не может быть меньше сегодняшней %v", v)
 				continue
@@ -153,18 +154,18 @@ func TestAddTask(t *testing.T) {
 		}
 	}
 
-	tbl = []task{
-		{"", "Заголовок", "", ""},
-		{"20231220", "Сделать что-нибудь", "Хорошо отдохнуть", ""},
-		{"20240108", "Уроки", "", "d 10"},
-		{"20240102", "Отдых в Сочи", "На лыжах", "y"},
-		{"today", "Фитнес", "", "d 1"},
-		{"today", "Шмитнес", "", ""},
+	tbl = []store.Task{
+		{Date: "", Title: "Заголовок", Comment: "", Repeat: ""},
+		{Date: "20231220", Title: "Сделать что-нибудь", Comment: "Хорошо отдохнуть", Repeat: ""},
+		{Date: "20240108", Title: "Уроки", Comment: "", Repeat: "d 10"},
+		{Date: "20240102", Title: "Отдых в Сочи", Comment: "На лыжах", Repeat: "y"},
+		{Date: "today", Title: "Фитнес", Comment: "", Repeat: "d 1"},
+		{Date: "today", Title: "Шмитнес", Comment: "", Repeat: ""},
 	}
 	check()
 	if config.GetFullNextDate() {
-		tbl = []task{
-			{"20240129", "Сходить в магазин", "", "w 1,3,5"},
+		tbl = []store.Task{
+			{Date: "20240129", Title: "Сходить в магазин", Comment: "", Repeat: "w 1,3,5"},
 		}
 		check()
 	}

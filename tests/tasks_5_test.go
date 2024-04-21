@@ -3,19 +3,21 @@ package tests
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"go-final-project/config"
+	"go-final-project/store"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func addTask(t *testing.T, task task) string {
+func addTask(t *testing.T, task store.Task) string {
 	ret, err := postJSON("api/task", map[string]any{
-		"date":    task.date,
-		"title":   task.title,
-		"comment": task.comment,
-		"repeat":  task.repeat,
+		"date":    task.Date,
+		"title":   task.Title,
+		"comment": task.Comment,
+		"repeat":  task.Repeat,
 	}, http.MethodPost)
 	assert.NoError(t, err)
 	assert.NotNil(t, ret["id"])
@@ -39,59 +41,61 @@ func getTasks(t *testing.T, search string) []map[string]string {
 }
 
 func TestTasks(t *testing.T) {
-	db := openDB(t)
+	dbPath := config.GetDBFileTestPath()
+	db, err := store.OpenDB(dbPath)
+	assert.NoError(t, err)
 	defer db.Close()
 
 	now := time.Now()
-	_, err := db.Exec("DELETE FROM scheduler")
+	_, err = db.Exec("DELETE FROM scheduler")
 	assert.NoError(t, err)
 
 	tasks := getTasks(t, "")
 	assert.NotNil(t, tasks)
 	assert.Empty(t, tasks)
 
-	addTask(t, task{
-		date:    now.Format(`20060102`),
-		title:   "Просмотр фильма",
-		comment: "с попкорном",
-		repeat:  "",
+	addTask(t, store.Task{
+		Date:    now.Format(`20060102`),
+		Title:   "Просмотр фильма",
+		Comment: "с попкорном",
+		Repeat:  "",
 	})
 	now = now.AddDate(0, 0, 1)
 	date := now.Format(`20060102`)
-	addTask(t, task{
-		date:    date,
-		title:   "Сходить в бассейн",
-		comment: "",
-		repeat:  "",
+	addTask(t, store.Task{
+		Date:    date,
+		Title:   "Сходить в бассейн",
+		Comment: "",
+		Repeat:  "",
 	})
-	addTask(t, task{
-		date:    date,
-		title:   "Оплатить коммуналку",
-		comment: "",
-		repeat:  "d 30",
+	addTask(t, store.Task{
+		Date:    date,
+		Title:   "Оплатить коммуналку",
+		Comment: "",
+		Repeat:  "d 30",
 	})
 	tasks = getTasks(t, "")
 	assert.Equal(t, len(tasks), 3)
 
 	now = now.AddDate(0, 0, 2)
 	date = now.Format(`20060102`)
-	addTask(t, task{
-		date:    date,
-		title:   "Поплавать",
-		comment: "Бассейн с тренером",
-		repeat:  "d 7",
+	addTask(t, store.Task{
+		Date:    date,
+		Title:   "Поплавать",
+		Comment: "Бассейн с тренером",
+		Repeat:  "d 7",
 	})
-	addTask(t, task{
-		date:    date,
-		title:   "Позвонить в УК",
-		comment: "Разобраться с горячей водой",
-		repeat:  "",
+	addTask(t, store.Task{
+		Date:    date,
+		Title:   "Позвонить в УК",
+		Comment: "Разобраться с горячей водой",
+		Repeat:  "",
 	})
-	addTask(t, task{
-		date:    date,
-		title:   "Встретится с Васей",
-		comment: "в 18:00",
-		repeat:  "",
+	addTask(t, store.Task{
+		Date:    date,
+		Title:   "Встретится с Васей",
+		Comment: "в 18:00",
+		Repeat:  "",
 	})
 
 	tasks = getTasks(t, "")

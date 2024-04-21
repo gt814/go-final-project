@@ -3,25 +3,28 @@ package tests
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"go-final-project/config"
+	"go-final-project/store"
 	"net/http"
 	"strconv"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestTask(t *testing.T) {
-	db := openDB(t)
+	dbPath := config.GetDBFileTestPath()
+	db, err := store.OpenDB(dbPath)
+	assert.NoError(t, err)
 	defer db.Close()
 
 	now := time.Now()
 
-	task := task{
-		date:    now.Format(`20060102`),
-		title:   "Созвон в 16:00",
-		comment: "Обсуждение планов",
-		repeat:  "d 5",
+	task := store.Task{
+		Date:    now.Format(`20060102`),
+		Title:   "Созвон в 16:00",
+		Comment: "Обсуждение планов",
+		Repeat:  "d 5",
 	}
 
 	todo := addTask(t, task)
@@ -42,48 +45,50 @@ func TestTask(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, todo, m["id"])
-	assert.Equal(t, task.date, m["date"])
-	assert.Equal(t, task.title, m["title"])
-	assert.Equal(t, task.comment, m["comment"])
-	assert.Equal(t, task.repeat, m["repeat"])
+	assert.Equal(t, task.Date, m["date"])
+	assert.Equal(t, task.Title, m["title"])
+	assert.Equal(t, task.Comment, m["comment"])
+	assert.Equal(t, task.Repeat, m["repeat"])
 }
 
 type fulltask struct {
 	id string
-	task
+	store.Task
 }
 
 func TestEditTask(t *testing.T) {
-	db := openDB(t)
+	dbPath := config.GetDBFileTestPath()
+	db, err := store.OpenDB(dbPath)
+	assert.NoError(t, err)
 	defer db.Close()
 
 	now := time.Now()
 
-	tsk := task{
-		date:    now.Format(`20060102`),
-		title:   "Заказать пиццу",
-		comment: "в 17:00",
-		repeat:  "",
+	tsk := store.Task{
+		Date:    now.Format(`20060102`),
+		Title:   "Заказать пиццу",
+		Comment: "в 17:00",
+		Repeat:  "",
 	}
 
 	id := addTask(t, tsk)
 
 	tbl := []fulltask{
-		{"", task{"20240129", "Тест", "", ""}},
-		{"abc", task{"20240129", "Тест", "", ""}},
-		{"7645346343", task{"20240129", "Тест", "", ""}},
-		{id, task{"20240129", "", "", ""}},
-		{id, task{"20240192", "Qwerty", "", ""}},
-		{id, task{"28.01.2024", "Заголовок", "", ""}},
-		{id, task{"20240212", "Заголовок", "", "ooops"}},
+		{"", store.Task{Date: "20240129", Title: "Тест", Comment: "", Repeat: ""}},
+		{"abc", store.Task{Date: "20240129", Title: "Тест", Comment: "", Repeat: ""}},
+		{"7645346343", store.Task{Date: "20240129", Title: "Тест", Comment: "", Repeat: ""}},
+		{id, store.Task{Date: "20240129", Title: "", Comment: "", Repeat: ""}},
+		{id, store.Task{Date: "20240192", Title: "Qwerty", Comment: "", Repeat: ""}},
+		{id, store.Task{Date: "28.01.2024", Title: "Заголовок", Comment: "", Repeat: ""}},
+		{id, store.Task{Date: "20240212", Title: "Заголовок", Comment: "", Repeat: "ooops"}},
 	}
 	for _, v := range tbl {
 		m, err := postJSON("api/task", map[string]any{
-			"id":      v.id,
-			"date":    v.date,
-			"title":   v.title,
-			"comment": v.comment,
-			"repeat":  v.repeat,
+			"id":      v.ID,
+			"date":    v.Date,
+			"title":   v.Task,
+			"comment": v.Comment,
+			"repeat":  v.Repeat,
 		}, http.MethodPut)
 		assert.NoError(t, err)
 
@@ -102,7 +107,7 @@ func TestEditTask(t *testing.T) {
 		e, ok := mupd["error"]
 		assert.False(t, ok && fmt.Sprint(e) != "")
 
-		var task Task
+		var task store.Task
 		err = db.Get(&task, `SELECT * FROM scheduler WHERE id=?`, id)
 		assert.NoError(t, err)
 
