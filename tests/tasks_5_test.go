@@ -3,13 +3,13 @@ package tests
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"go-final-project/config"
+	"go-final-project/endpoint"
 	"go-final-project/store"
 	"net/http"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func addTask(t *testing.T, task store.Task) string {
@@ -26,7 +26,7 @@ func addTask(t *testing.T, task store.Task) string {
 	return id
 }
 
-func getTasks(t *testing.T, search string) []map[string]string {
+func getTasks(t *testing.T, search string) []store.Task {
 	url := "api/tasks"
 	if config.GetSearch() {
 		url += "?search=" + search
@@ -34,10 +34,10 @@ func getTasks(t *testing.T, search string) []map[string]string {
 	body, err := requestJSON(url, nil, http.MethodGet)
 	assert.NoError(t, err)
 
-	var m map[string][]map[string]string
-	err = json.Unmarshal(body, &m)
+	var tasksResponse endpoint.TasksResponse
+	err = json.Unmarshal(body, &tasksResponse)
 	assert.NoError(t, err)
-	return m["tasks"]
+	return tasksResponse.Tasks
 }
 
 func TestTasks(t *testing.T) {

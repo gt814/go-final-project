@@ -33,3 +33,29 @@ func (s TaskStore) Add(t Task) (int64, error) {
 
 	return id, err
 }
+
+func (s TaskStore) GetAll() ([]Task, error) {
+	var res []Task
+
+	rows, err := s.db.Query("SELECT id, date, title, comment, repeat FROM scheduler")
+	if err != nil {
+		return res, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var t Task
+		err := rows.Scan(&t.ID, &t.Date, &t.Title, &t.Comment, &t.Comment)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, t)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
