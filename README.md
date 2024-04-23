@@ -9,13 +9,13 @@
  go run main.go
 
  # Запуск тестов
- go test -run ^TestApp$ ./tests
- go test -run ^TestDB$ ./tests
- go test -run ^TestNextDate$ ./tests
- go test -run ^TestAddTask$ ./tests
- go test -run ^TestTasks$ ./tests
- go test -run ^TestTask$ ./tests
- go test -run ^TestEditTask$ ./tests
- go test -run ^TestDone$ ./tests
- go test -run ^TestDelTask$ ./tests
- go test ./tests
+ 1. go test -run ^TestApp$ ./tests
+ 2. go test -run ^TestDB$ ./tests
+ 3. go test -run ^TestNextDate$ ./tests
+ 4. go test -run ^TestAddTask$ ./tests
+ 5. go test -run ^TestTasks$ ./tests
+ 6. go test -run ^TestTask$ ./tests
+ 7. go test -run ^TestEditTask$ ./tests
+ 8. go test -run ^TestDone$ ./tests
+ 9. go test -run ^TestDelTask$ ./tests
+ 10. go test ./tests
