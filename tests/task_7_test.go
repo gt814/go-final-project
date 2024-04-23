@@ -51,7 +51,7 @@ func TestDone(t *testing.T) {
 		err = db.Get(&task, `SELECT * FROM scheduler WHERE id=?`, id)
 		assert.NoError(t, err)
 		now = now.AddDate(0, 0, 3)
-		assert.Equal(t, task.Date, now.Format(`20060102`))
+		assert.Equal(t, now.Format(`20060102`), task.Date)
 	}
 }
 

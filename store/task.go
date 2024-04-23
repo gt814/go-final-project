@@ -78,3 +78,13 @@ func (s TaskStore) Edit(t Task) error {
 
 	return err
 }
+
+func (s TaskStore) Delete(id int64) error {
+	_, err := s.db.Exec(`DELETE FROM scheduler WHERE id = ?`, id)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return err
+}

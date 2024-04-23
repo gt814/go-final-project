@@ -39,6 +39,8 @@ func main() {
 	r.Post("/api/task", endpoint.AddTask)
 	r.Get("/api/task", endpoint.GetTask)
 	r.Put("/api/task", endpoint.EditTask)
+	r.Delete("/api/task", endpoint.DeleteTask)
+	r.Post("/api/task/done", endpoint.DoneTask)
 	r.Get("/api/tasks", endpoint.GetTasks)
 
 	//Start web server.

@@ -17,3 +17,5 @@
  go test -run ^TestTask$ ./tests
  go test -run ^TestEditTask$ ./tests
  go test -run ^TestDone$ ./tests
+ go test -run ^TestDelTask$ ./tests
+ go test ./tests

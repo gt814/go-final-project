@@ -193,9 +193,88 @@ func EditTask(w http.ResponseWriter, r *http.Request) {
 	makeHttpResponse(w, "{}", http.StatusOK)
 }
 
+func DoneTask(w http.ResponseWriter, r *http.Request) {
+	idParam := r.URL.Query().Get("id")
+
+	if idParam == "" {
+		makeHttpResponse(w, ErrorResponse{Error: "Task ID not specified"}, http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.ParseInt(idParam, 10, 64)
+
+	if err != nil {
+		makeHttpResponse(w, ErrorResponse{Error: "Invalid task ID"}, http.StatusBadRequest)
+		return
+	}
+
+	t, err := taskStore.Get(id)
+
+	if t.ID == 0 {
+		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
+	}
+
+	if err != nil {
+		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
+	}
+
+	if t.Repeat == "" {
+		err = taskStore.Delete(id)
+
+		if err != nil {
+			makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
+		}
+	} else {
+		t.Date, err = datetask.NextDate(time.Now(), t.Date, t.Repeat)
+		if err != nil {
+			makeHttpResponse(w, ErrorResponse{Error: "invalid date format"}, http.StatusInternalServerError)
+			return
+		}
+
+		err = taskStore.Edit(t)
+		if err != nil {
+			makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
+		}
+	}
+
+	makeHttpResponse(w, "{}", http.StatusOK)
+}
+
+func DeleteTask(w http.ResponseWriter, r *http.Request) {
+	idParam := r.URL.Query().Get("id")
+
+	if idParam == "" {
+		makeHttpResponse(w, ErrorResponse{Error: "Task ID not specified"}, http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.ParseInt(idParam, 10, 64)
+
+	if err != nil {
+		makeHttpResponse(w, ErrorResponse{Error: "Invalid task ID"}, http.StatusBadRequest)
+		return
+	}
+
+	t, err := taskStore.Get(id)
+
+	if t.ID == 0 {
+		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
+	}
+
+	if err != nil {
+		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
+	}
+
+	err = taskStore.Delete(id)
+	if err != nil {
+		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
+	}
+
+	makeHttpResponse(w, "{}", http.StatusOK)
+}
+
 func checkAndEnrichTask(t store.Task) (store.Task, error) {
 	if t.Title == "" {
-		//makeHttpResponse(w, ErrorResponse{Error: "task title is not specified"}, http.StatusBadRequest)
 		return t, errors.New("task title is not specified")
 	}
 
@@ -205,23 +284,23 @@ func checkAndEnrichTask(t store.Task) (store.Task, error) {
 		taskDate, err := time.Parse("20060102", t.Date)
 
 		if err != nil {
-			//makeHttpResponse(w, ErrorResponse{Error: "invalid date format"}, http.StatusBadRequest)
 			return t, errors.New("invalid date format")
 		}
 
 		if t.Repeat != "" {
 			if taskDate.Truncate(24 * time.Hour).Before(time.Now().Truncate(24 * time.Hour)) {
 				t.Date, err = datetask.NextDate(time.Now(), t.Date, t.Repeat)
+
+				if err != nil {
+					return t, errors.New("invalid date format")
+				}
 			}
 		} else {
 			if taskDate.Truncate(24 * time.Hour).Before(time.Now().Truncate(24 * time.Hour)) {
 				t.Date = time.Now().Format("20060102")
 			}
 		}
-		if err != nil {
-			//makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusBadRequest)
-			return t, errors.New("invalid date format")
-		}
+
 	}
 	return t, nil
 }
