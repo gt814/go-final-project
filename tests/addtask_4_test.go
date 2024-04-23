@@ -73,7 +73,11 @@ func postJSON(apipath string, values map[string]any, method string) (map[string]
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(body, &m)
+
+	if len(string(body)) > 4 { //not empty JSON
+		err = json.Unmarshal(body, &m)
+	}
+
 	return m, err
 }
 

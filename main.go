@@ -37,6 +37,8 @@ func main() {
 	// Set api routes
 	r.Get("/api/nextdate", endpoint.NextDateHandler)
 	r.Post("/api/task", endpoint.AddTask)
+	r.Get("/api/task", endpoint.GetTask)
+	r.Put("/api/task", endpoint.EditTask)
 	r.Get("/api/tasks", endpoint.GetTasks)
 
 	//Start web server.

@@ -1,6 +1,9 @@
 package store
 
 import (
+	//"database/sql"
+	"log"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -58,4 +61,21 @@ func (s TaskStore) GetAll() ([]Task, error) {
 	}
 
 	return res, nil
+}
+
+func (s TaskStore) Get(id int64) (Task, error) {
+	task := Task{}
+	err := s.db.Get(&task, `SELECT id, date, title, comment, repeat FROM scheduler WHERE id=?`, id)
+	return task, err
+}
+
+func (s TaskStore) Edit(t Task) error {
+	log.Println("обновляем t=", t)
+	_, err := s.db.Exec(`UPDATE scheduler SET date = ?, title = ?, comment = ?, repeat = ? WHERE id = ?`, t.Date, t.Title, t.Comment, t.Repeat, t.ID)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return err
 }

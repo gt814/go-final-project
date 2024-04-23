@@ -31,24 +31,22 @@ func TestTask(t *testing.T) {
 
 	body, err := requestJSON("api/task", nil, http.MethodGet)
 	assert.NoError(t, err)
-	var m map[string]string
-	err = json.Unmarshal(body, &m)
-	assert.NoError(t, err)
+	var responseTask store.Task
+	err = json.Unmarshal(body, &responseTask)
 
-	e, ok := m["error"]
-	assert.False(t, !ok || len(fmt.Sprint(e)) == 0,
-		"Ожидается ошибка для вызова /api/task")
+	assert.False(t, len(fmt.Sprint(err)) == 0, "Ожидается ошибка для вызова /api/task")
 
 	body, err = requestJSON("api/task?id="+todo, nil, http.MethodGet)
 	assert.NoError(t, err)
-	err = json.Unmarshal(body, &m)
+	err = json.Unmarshal(body, &responseTask)
 	assert.NoError(t, err)
 
-	assert.Equal(t, todo, m["id"])
-	assert.Equal(t, task.Date, m["date"])
-	assert.Equal(t, task.Title, m["title"])
-	assert.Equal(t, task.Comment, m["comment"])
-	assert.Equal(t, task.Repeat, m["repeat"])
+	taskId, _ := strconv.ParseInt(todo, 10, 64)
+	assert.Equal(t, taskId, responseTask.ID)
+	assert.Equal(t, task.Date, responseTask.Date)
+	assert.Equal(t, task.Title, responseTask.Title)
+	assert.Equal(t, task.Comment, responseTask.Comment)
+	assert.Equal(t, task.Repeat, responseTask.Repeat)
 }
 
 type fulltask struct {
@@ -77,16 +75,37 @@ func TestEditTask(t *testing.T) {
 		{"", store.Task{Date: "20240129", Title: "Тест", Comment: "", Repeat: ""}},
 		{"abc", store.Task{Date: "20240129", Title: "Тест", Comment: "", Repeat: ""}},
 		{"7645346343", store.Task{Date: "20240129", Title: "Тест", Comment: "", Repeat: ""}},
-		{id, store.Task{Date: "20240129", Title: "", Comment: "", Repeat: ""}},
-		{id, store.Task{Date: "20240192", Title: "Qwerty", Comment: "", Repeat: ""}},
-		{id, store.Task{Date: "28.01.2024", Title: "Заголовок", Comment: "", Repeat: ""}},
-		{id, store.Task{Date: "20240212", Title: "Заголовок", Comment: "", Repeat: "ooops"}},
 	}
 	for _, v := range tbl {
 		m, err := postJSON("api/task", map[string]any{
+			"id":      v.id,
+			"date":    v.Date,
+			"title":   v.Title,
+			"comment": v.Comment,
+			"repeat":  v.Repeat,
+		}, http.MethodPut)
+		assert.NoError(t, err)
+
+		var errVal string
+		e, ok := m["error"]
+		if ok {
+			errVal = fmt.Sprint(e)
+		}
+		assert.NotEqual(t, len(errVal), 0, "Ожидается ошибка для значения %v", v)
+	}
+
+	idParam, _ := strconv.ParseInt(id, 10, 64)
+	tbl2 := []store.Task{
+		{ID: idParam, Date: "20240129", Title: "", Comment: "", Repeat: ""},
+		{ID: idParam, Date: "20240192", Title: "Qwerty", Comment: "", Repeat: ""},
+		{ID: idParam, Date: "28.01.2024", Title: "Заголовок", Comment: "", Repeat: ""},
+		{ID: idParam, Date: "20240212", Title: "Заголовок", Comment: "", Repeat: "ooops"},
+	}
+	for _, v := range tbl2 {
+		m, err := postJSON("api/task", map[string]any{
 			"id":      v.ID,
 			"date":    v.Date,
-			"title":   v.Task,
+			"title":   v.Title,
 			"comment": v.Comment,
 			"repeat":  v.Repeat,
 		}, http.MethodPut)
@@ -128,7 +147,7 @@ func TestEditTask(t *testing.T) {
 	}
 
 	updateTask(map[string]any{
-		"id":      id,
+		"id":      idParam,
 		"date":    now.Format(`20060102`),
 		"title":   "Заказать хинкали",
 		"comment": "в 18:00",
