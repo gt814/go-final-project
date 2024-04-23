@@ -70,7 +70,6 @@ func (s TaskStore) Get(id int64) (Task, error) {
 }
 
 func (s TaskStore) Edit(t Task) error {
-	log.Println("обновляем t=", t)
 	_, err := s.db.Exec(`UPDATE scheduler SET date = ?, title = ?, comment = ?, repeat = ? WHERE id = ?`, t.Date, t.Title, t.Comment, t.Repeat, t.ID)
 
 	if err != nil {
