@@ -14,3 +14,15 @@
 ## Запуск конкретных методов тестов
 `go test -run ^TestName$ ./tests`, где `TestName` - имя теста.
 Например, `go test -run ^TestApp$ ./tests`.
+
+# Работа с docker
+
+## Сборка docker образа
+`docker build -t gt814/go-final-project:v1.0.0 .`
+
+## Запуск docker контейнера
+`docker run -p 7540:7540 gt814/go-final-project:v1.0.0`
+
+## Добавление тега версии для активации процесса пуша образа в docker registry
+`git tag v1.0.0 git push --tags`
+
