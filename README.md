@@ -26,3 +26,8 @@
 ## Добавление тега версии для активации процесса пуша образа в docker registry
 `git tag v1.0.0 git push --tags`
 
+## Запуск docker конетейнера из DockerHub
+```
+docker pull --platform linux/x86_64 gt814/go-final-project:v1.0.0 
+docker run -p 7540:7540 --platform linux/x86_64 gt814/go-final-project:v1.0.0
+```
