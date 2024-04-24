@@ -34,7 +34,7 @@ func getTasks(t *testing.T, search string) []store.Task {
 	body, err := requestJSON(url, nil, http.MethodGet)
 	assert.NoError(t, err)
 
-	var tasksResponse endpoint.TasksResponse
+	var tasksResponse api.TasksResponse
 	err = json.Unmarshal(body, &tasksResponse)
 	assert.NoError(t, err)
 	return tasksResponse.Tasks
