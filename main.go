@@ -35,13 +35,14 @@ func main() {
 	r.Handle("/*", http.FileServer(http.Dir(webDir)))
 
 	// Set api routes
-	r.Get("/api/nextdate", endpoint.NextDateHandler)
-	r.Post("/api/task", endpoint.AddTask)
-	r.Get("/api/task", endpoint.GetTask)
-	r.Put("/api/task", endpoint.EditTask)
-	r.Delete("/api/task", endpoint.DeleteTask)
-	r.Post("/api/task/done", endpoint.DoneTask)
-	r.Get("/api/tasks", endpoint.GetTasks)
+	path := "/api/"
+	r.Get(path+"nextdate", endpoint.NextDateHandler)
+	r.Post(path+"task", endpoint.AddTask)
+	r.Get(path+"task", endpoint.GetTask)
+	r.Put(path+"task", endpoint.EditTask)
+	r.Delete(path+"task", endpoint.DeleteTask)
+	r.Post(path+"task/done", endpoint.DoneTask)
+	r.Get(path+"tasks", endpoint.GetTasks)
 
 	//Start web server.
 	port := strconv.Itoa(config.GetPort())

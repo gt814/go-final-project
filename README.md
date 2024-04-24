@@ -8,14 +8,9 @@
  export TODO_PORT=7540
  go run main.go
 
- # Запуск тестов
- 1. go test -run ^TestApp$ ./tests
- 2. go test -run ^TestDB$ ./tests
- 3. go test -run ^TestNextDate$ ./tests
- 4. go test -run ^TestAddTask$ ./tests
- 5. go test -run ^TestTasks$ ./tests
- 6. go test -run ^TestTask$ ./tests
- 7. go test -run ^TestEditTask$ ./tests
- 8. go test -run ^TestDone$ ./tests
- 9. go test -run ^TestDelTask$ ./tests
- 10. go test ./tests
+# Запуск тестов
+`go test ./tests`
+
+## Запуск конкретных методов тестов
+`go test -run ^TestName$ ./tests`, где `TestName` - имя теста.
+Например, `go test -run ^TestApp$ ./tests`.
