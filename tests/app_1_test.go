@@ -2,18 +2,25 @@ package tests
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"go-final-project/config"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func getURL(path string) string {
-	port := config.GetPort()
+	port := Port
+	envPort := os.Getenv("TODO_PORT")
+	if len(envPort) > 0 {
+		if eport, err := strconv.ParseInt(envPort, 10, 32); err == nil {
+			port = int(eport)
+		}
+	}
 	path = strings.ReplaceAll(strings.TrimPrefix(path, `../web/`), `\`, `/`)
 	return fmt.Sprintf("http://localhost:%d/%s", port, path)
 }

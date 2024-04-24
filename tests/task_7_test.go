@@ -2,12 +2,11 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"go-final-project/config"
-	"go-final-project/store"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func notFoundTask(t *testing.T, id string) {
@@ -21,15 +20,13 @@ func notFoundTask(t *testing.T, id string) {
 }
 
 func TestDone(t *testing.T) {
-	dbPath := config.GetDBFileTestPath()
-	db, err := store.OpenDB(dbPath)
-	assert.NoError(t, err)
+	db := openDB(t)
 	defer db.Close()
 
 	now := time.Now()
-	id := addTask(t, store.Task{
-		Date:  now.Format(`20060102`),
-		Title: "Свести баланс",
+	id := addTask(t, task{
+		date:  now.Format(`20060102`),
+		title: "Свести баланс",
 	})
 
 	ret, err := postJSON("api/task/done?id="+id, nil, http.MethodPost)
@@ -37,9 +34,9 @@ func TestDone(t *testing.T) {
 	assert.Empty(t, ret)
 	notFoundTask(t, id)
 
-	id = addTask(t, store.Task{
-		Title:  "Проверить работу /api/task/done",
-		Repeat: "d 3",
+	id = addTask(t, task{
+		title:  "Проверить работу /api/task/done",
+		repeat: "d 3",
 	})
 
 	for i := 0; i < 3; i++ {
@@ -47,23 +44,21 @@ func TestDone(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Empty(t, ret)
 
-		var task store.Task
+		var task Task
 		err = db.Get(&task, `SELECT * FROM scheduler WHERE id=?`, id)
 		assert.NoError(t, err)
 		now = now.AddDate(0, 0, 3)
-		assert.Equal(t, now.Format(`20060102`), task.Date)
+		assert.Equal(t, task.Date, now.Format(`20060102`))
 	}
 }
 
 func TestDelTask(t *testing.T) {
-	dbPath := config.GetDBFileTestPath()
-	db, err := store.OpenDB(dbPath)
-	assert.NoError(t, err)
+	db := openDB(t)
 	defer db.Close()
 
-	id := addTask(t, store.Task{
-		Title:  "Временная задача",
-		Repeat: "d 3",
+	id := addTask(t, task{
+		title:  "Временная задача",
+		repeat: "d 3",
 	})
 	ret, err := postJSON("api/task?id="+id, nil, http.MethodDelete)
 	assert.NoError(t, err)

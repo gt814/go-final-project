@@ -20,7 +20,7 @@ func SetTaskStore(ts store.TaskStore) {
 }
 
 type TaskIdResponse struct {
-	ID int64 `json:"id"`
+	ID string `json:"id"`
 }
 
 type TasksResponse struct {
@@ -95,7 +95,7 @@ func AddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	makeHttpResponse(w, TaskIdResponse{ID: id}, http.StatusCreated)
+	makeHttpResponse(w, TaskIdResponse{ID: fmt.Sprint(id)}, http.StatusCreated)
 }
 
 func GetTasks(w http.ResponseWriter, r *http.Request) {
@@ -132,7 +132,7 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 
 	task, err := taskStore.Get(id)
 
-	if task.ID == 0 {
+	if task.ID == "" {
 		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
 		return
 	}
@@ -164,8 +164,13 @@ func EditTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if task.ID == 0 {
+	if task.ID == "" {
 		makeHttpResponse(w, ErrorResponse{Error: "ID not specified"}, http.StatusBadRequest)
+		return
+	}
+	_, err = strconv.ParseInt(task.ID, 10, 64)
+	if err != nil {
+		makeHttpResponse(w, ErrorResponse{Error: "ID must be a number"}, http.StatusBadRequest)
 		return
 	}
 
@@ -175,10 +180,16 @@ func EditTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := taskStore.Get(task.ID)
+	id, err := strconv.ParseInt(task.ID, 10, 64)
+	if err != nil {
+		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
+	}
 
-	if t.ID == 0 {
+	t, err := taskStore.Get(id)
+
+	if t.ID == "" {
 		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
+		return
 	}
 
 	if err != nil {
@@ -210,7 +221,7 @@ func DoneTask(w http.ResponseWriter, r *http.Request) {
 
 	t, err := taskStore.Get(id)
 
-	if t.ID == 0 {
+	if t.ID == "" {
 		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
 	}
 
@@ -257,7 +268,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	t, err := taskStore.Get(id)
 
-	if t.ID == 0 {
+	if t.ID == "" {
 		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
 	}
 

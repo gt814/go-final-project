@@ -24,19 +24,3 @@ func GetDBFileAppPath() string {
 	}
 	return dbFile
 }
-
-func GetDBFileTestPath() string {
-	return dBFileTestPath + GetDBFileAppPath()
-}
-
-func GetFullNextDate() bool {
-	return fullNextDate
-}
-
-func GetSearch() bool {
-	return search
-}
-
-func GetToken() string {
-	return token
-}
