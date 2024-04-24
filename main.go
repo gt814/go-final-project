@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/go-chi/chi/v5"
 	_ "github.com/mattn/go-sqlite3"
+	"go-final-project/api"
 	"go-final-project/config"
-	"go-final-project/endpoint"
 	"go-final-project/store"
 	"log"
 	"net/http"
