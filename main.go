@@ -12,7 +12,7 @@ import (
 func main() {
 	// Initialize DB
 	dbPath := config.GetDBFileAppPath()
-	db, err := store.OpenDB(dbPath)
+	db, err := store.InitDB(dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func OpenDB(path string) (*sqlx.DB, error) {
+func InitDB(path string) (*sqlx.DB, error) {
 	basePath, err := os.Getwd()
 	if err != nil {
 		return nil, err
