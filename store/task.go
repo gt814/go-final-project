@@ -23,7 +23,7 @@ type Task struct {
 	Repeat  string `json:"repeat"`
 }
 
-func (s TaskStore) Add(t Task) (int64, error) {
+func (s TaskStore) Create(t Task) (int64, error) {
 
 	res, err := s.db.Exec(`INSERT INTO scheduler (date, title, comment, repeat) 
 	VALUES (?, ?, ?, ?)`, t.Date, t.Title, t.Comment, t.Repeat)
@@ -62,13 +62,13 @@ func (s TaskStore) GetAll() ([]Task, error) {
 	return res, nil
 }
 
-func (s TaskStore) Get(id int64) (Task, error) {
+func (s TaskStore) GetById(id int64) (Task, error) {
 	task := Task{}
 	err := s.db.Get(&task, `SELECT id, date, title, comment, repeat FROM scheduler WHERE id=?`, id)
 	return task, err
 }
 
-func (s TaskStore) Edit(t Task) error {
+func (s TaskStore) Update(t Task) error {
 	_, err := s.db.Exec(`UPDATE scheduler SET date = ?, title = ?, comment = ?, repeat = ? WHERE id = ?`, t.Date, t.Title, t.Comment, t.Repeat, t.ID)
 
 	if err != nil {

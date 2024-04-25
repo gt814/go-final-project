@@ -93,7 +93,7 @@ func AddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := taskStore.Add(task)
+	id, err := taskStore.Create(task)
 	if err != nil {
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 		return
@@ -134,7 +134,7 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := taskStore.Get(id)
+	task, err := taskStore.GetById(id)
 
 	if task.ID == "" {
 		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
@@ -189,7 +189,7 @@ func EditTask(w http.ResponseWriter, r *http.Request) {
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 	}
 
-	t, err := taskStore.Get(id)
+	t, err := taskStore.GetById(id)
 
 	if t.ID == "" {
 		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
@@ -200,7 +200,7 @@ func EditTask(w http.ResponseWriter, r *http.Request) {
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 	}
 
-	err = taskStore.Edit(task)
+	err = taskStore.Update(task)
 	if err != nil {
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 	}
@@ -223,7 +223,7 @@ func DoneTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := taskStore.Get(id)
+	t, err := taskStore.GetById(id)
 
 	if t.ID == "" {
 		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
@@ -246,7 +246,7 @@ func DoneTask(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = taskStore.Edit(t)
+		err = taskStore.Update(t)
 		if err != nil {
 			makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 		}
@@ -270,7 +270,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := taskStore.Get(id)
+	t, err := taskStore.GetById(id)
 
 	if t.ID == "" {
 		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
