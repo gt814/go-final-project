@@ -1,6 +1,7 @@
 package store
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/jmoiron/sqlx"
@@ -39,7 +40,8 @@ func (s TaskStore) Create(t Task) (int64, error) {
 func (s TaskStore) GetTaskList(count int) ([]Task, error) {
 	var res []Task
 
-	rows, err := s.db.Query("SELECT id, date, title, comment, repeat FROM scheduler LIMIT ?", count)
+	query := fmt.Sprintf("SELECT id, date, title, comment, repeat FROM scheduler LIMIT %d", count)
+	rows, err := s.db.Query(query)
 	if err != nil {
 		return res, err
 	}
