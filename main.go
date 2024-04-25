@@ -7,7 +7,6 @@ import (
 	"go-final-project/store"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 func main() {
@@ -25,10 +24,8 @@ func main() {
 	r := api.GetRouter()
 
 	//Start web server.
-	port := strconv.Itoa(config.GetPort())
-	log.Println("Start listening on the port=", port)
-
-	if err := http.ListenAndServe(":"+port, r); err != nil {
+	log.Println("Start listening on the port=", config.GetPort())
+	if err := http.ListenAndServe(":"+config.GetPort(), r); err != nil {
 		log.Fatal("Start web server, err = %w", err)
 		return
 	}

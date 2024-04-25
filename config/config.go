@@ -1,19 +1,22 @@
 package config
 
 import (
+	"log"
 	"os"
 	"strconv"
 )
 
-func GetPort() int {
+func GetPort() string {
 	todoPort := os.Getenv("TODO_PORT")
 	if len(todoPort) > 0 {
-		if eport, err := strconv.ParseInt(todoPort, 10, 32); err == nil {
-			port = int(eport)
+		intTodoPort, err := strconv.Atoi(todoPort)
+		if err != nil {
+			log.Fatalln(err)
 		}
-	}
 
-	return port
+		port = intTodoPort
+	}
+	return strconv.Itoa(port)
 }
 
 func GetDBFileAppPath() string {
