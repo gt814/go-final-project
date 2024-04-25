@@ -96,6 +96,7 @@ func AddTask(w http.ResponseWriter, r *http.Request) {
 
 	id, err := taskStore.Create(task)
 	if err != nil {
+		log.Println("Create err=", err.Error())
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 		return
 	}
@@ -204,6 +205,7 @@ func EditTask(w http.ResponseWriter, r *http.Request) {
 
 	err = taskStore.Update(task)
 	if err != nil {
+		log.Println("Update err=", err.Error())
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 	}
 
@@ -239,6 +241,7 @@ func DoneTask(w http.ResponseWriter, r *http.Request) {
 		err = taskStore.Delete(id)
 
 		if err != nil {
+			log.Println("Delete err=", err.Error())
 			makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 		}
 	} else {
@@ -250,6 +253,7 @@ func DoneTask(w http.ResponseWriter, r *http.Request) {
 
 		err = taskStore.Update(t)
 		if err != nil {
+			log.Println("Update err=", err.Error())
 			makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 		}
 	}
@@ -284,6 +288,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	err = taskStore.Delete(id)
 	if err != nil {
+		log.Println("Delete err=", err.Error())
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 	}
 

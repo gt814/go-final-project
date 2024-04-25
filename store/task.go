@@ -2,8 +2,6 @@ package store
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -72,20 +70,10 @@ func (s TaskStore) GetById(id int64) (Task, error) {
 
 func (s TaskStore) Update(t Task) error {
 	_, err := s.db.Exec(`UPDATE scheduler SET date = ?, title = ?, comment = ?, repeat = ? WHERE id = ?`, t.Date, t.Title, t.Comment, t.Repeat, t.ID)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	return err
 }
 
 func (s TaskStore) Delete(id int64) error {
 	_, err := s.db.Exec(`DELETE FROM scheduler WHERE id = ?`, id)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	return err
 }
