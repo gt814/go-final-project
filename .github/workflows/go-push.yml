@@ -10,7 +10,18 @@ jobs:
     container: golang:1.22
     steps:
       - uses: actions/checkout@v4
-
+      - uses: JarvusInnovations/background-action@v1
+        name: Bootstrap System Under Test (SUT)
+        with:
+            run: |
+                go run main.go
+            wait-on: |
+                http://localhost:7540
+            tail: true # true = stderr,stdout
+            log-output-resume: stderr
+            wait-for: 5m
+            log-output: stderr,stdout # same as true
+        
       - name: Run Unit Tests
         run: GOOS=linux GOARCH=amd64 go test ./tests
 
