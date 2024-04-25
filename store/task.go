@@ -36,10 +36,10 @@ func (s TaskStore) Create(t Task) (int64, error) {
 	return id, err
 }
 
-func (s TaskStore) GetAll() ([]Task, error) {
+func (s TaskStore) GetTaskList(count int) ([]Task, error) {
 	var res []Task
 
-	rows, err := s.db.Query("SELECT id, date, title, comment, repeat FROM scheduler")
+	rows, err := s.db.Query("SELECT id, date, title, comment, repeat FROM scheduler LIMIT ?", count)
 	if err != nil {
 		return res, err
 	}

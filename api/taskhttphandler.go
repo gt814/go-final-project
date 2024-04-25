@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go-final-project/config"
 	"go-final-project/datetask"
 	"go-final-project/store"
 	"log"
@@ -105,7 +106,8 @@ func AddTask(w http.ResponseWriter, r *http.Request) {
 func GetTasks(w http.ResponseWriter, r *http.Request) {
 	var tasks []store.Task
 
-	tasks, err := taskStore.GetAll()
+	count := config.GetTaskLimit()
+	tasks, err := taskStore.GetTaskList(count)
 
 	if err != nil {
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)

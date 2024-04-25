@@ -27,3 +27,17 @@ func GetDBFileAppPath() string {
 	}
 	return dbFile
 }
+
+func GetTaskLimit() int {
+	todoTaskLimit := os.Getenv("TODO_TASKLIMIT")
+
+	if len(todoTaskLimit) > 0 {
+		intTodoTaskLimit, err := strconv.Atoi(todoTaskLimit)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		taskLimit = intTodoTaskLimit
+	}
+
+	return taskLimit
+}
