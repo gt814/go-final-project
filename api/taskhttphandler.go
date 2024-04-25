@@ -31,6 +31,10 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
+type Response struct{}
+
+var emptyResponse = Response{}
+
 func NextDateHandler(w http.ResponseWriter, r *http.Request) {
 	nowParam := r.URL.Query().Get("now")
 	dateParam := r.URL.Query().Get("date")
@@ -201,7 +205,7 @@ func EditTask(w http.ResponseWriter, r *http.Request) {
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 	}
 
-	makeHttpResponse(w, "{}", http.StatusOK)
+	makeHttpResponse(w, emptyResponse, http.StatusOK)
 }
 
 func DoneTask(w http.ResponseWriter, r *http.Request) {
@@ -248,7 +252,7 @@ func DoneTask(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	makeHttpResponse(w, "{}", http.StatusOK)
+	makeHttpResponse(w, emptyResponse, http.StatusOK)
 }
 
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
@@ -281,7 +285,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 	}
 
-	makeHttpResponse(w, "{}", http.StatusOK)
+	makeHttpResponse(w, emptyResponse, http.StatusOK)
 }
 
 func checkAndEnrichTask(t store.Task) (store.Task, error) {
