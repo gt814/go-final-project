@@ -53,7 +53,6 @@ func NextDateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Параметры запуска NextDate now, dateParam, repeatParam", now, dateParam, repeatParam)
 	_, err = datetask.NextDate(now, dateParam, repeatParam)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
