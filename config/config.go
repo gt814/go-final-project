@@ -6,6 +6,10 @@ import (
 	"strconv"
 )
 
+const port = 7540
+const dbFile = "./scheduler.db"
+const taskLimit = 50
+
 func GetPort() string {
 	todoPort := os.Getenv("TODO_PORT")
 	if len(todoPort) > 0 {
@@ -14,8 +18,9 @@ func GetPort() string {
 			log.Fatalln(err)
 		}
 
-		port = intTodoPort
+		return strconv.Itoa(intTodoPort)
 	}
+
 	return strconv.Itoa(port)
 }
 
@@ -36,7 +41,7 @@ func GetTaskLimit() int {
 		if err != nil {
 			log.Fatalln(err)
 		}
-		taskLimit = intTodoTaskLimit
+		return intTodoTaskLimit
 	}
 
 	return taskLimit
