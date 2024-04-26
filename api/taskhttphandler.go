@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"go-final-project/config"
-	"go-final-project/datetask"
 	"go-final-project/store"
 	"log"
 	"net/http"
@@ -53,13 +52,13 @@ func NextDateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = datetask.NextDate(now, dateParam, repeatParam)
+	_, err = store.NextDate(now, dateParam, repeatParam)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	nextDate, err := datetask.NextDate(now, dateParam, repeatParam)
+	nextDate, err := store.NextDate(now, dateParam, repeatParam)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -244,7 +243,7 @@ func DoneTask(w http.ResponseWriter, r *http.Request) {
 			makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 		}
 	} else {
-		t.Date, err = datetask.NextDate(time.Now(), t.Date, t.Repeat)
+		t.Date, err = store.NextDate(time.Now(), t.Date, t.Repeat)
 		if err != nil {
 			makeHttpResponse(w, ErrorResponse{Error: "invalid date format"}, http.StatusInternalServerError)
 			return
@@ -310,7 +309,7 @@ func checkAndEnrichTask(t store.Task) (store.Task, error) {
 
 		if t.Repeat != "" {
 			if taskDate.Truncate(24 * time.Hour).Before(time.Now().Truncate(24 * time.Hour)) {
-				t.Date, err = datetask.NextDate(time.Now(), t.Date, t.Repeat)
+				t.Date, err = store.NextDate(time.Now(), t.Date, t.Repeat)
 
 				if err != nil {
 					return t, errors.New("invalid date format")
