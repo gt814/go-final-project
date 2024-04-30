@@ -115,13 +115,12 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//check if the task exists
 	task, err := service.GetById(id)
-
 	if task.ID == "" {
 		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
 		return
 	}
-
 	if err != nil {
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 		return
@@ -171,13 +170,12 @@ func EditTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//check if the task exists
 	t, err := service.GetById(id)
-
 	if t.ID == "" {
 		makeHttpResponse(w, ErrorResponse{Error: "Task not found"}, http.StatusBadRequest)
 		return
 	}
-
 	if err != nil {
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusInternalServerError)
 	}
@@ -280,9 +278,7 @@ func checkTask(t store.Task) (store.Task, error) {
 func makeHttpResponse(w http.ResponseWriter, response any, status int) {
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(status)
 		w.Write(jsonResponse)
