@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"go-final-project/service"
 	"go-final-project/store"
@@ -29,32 +28,6 @@ type Response struct{}
 
 var emptyResponse = Response{}
 
-func NextDateHandler(w http.ResponseWriter, r *http.Request) {
-	nowParam := r.URL.Query().Get("now")
-	dateParam := r.URL.Query().Get("date")
-	repeatParam := r.URL.Query().Get("repeat")
-
-	now, err := time.Parse("20060102", nowParam)
-	if err != nil {
-		http.Error(w, "Invalid 'now' parameter", http.StatusBadRequest)
-		return
-	}
-
-	_, err = time.Parse("20060102", dateParam)
-	if err != nil {
-		http.Error(w, "Invalid 'date' parameter", http.StatusBadRequest)
-		return
-	}
-
-	nextDate, err := service.NextDate(now, dateParam, repeatParam)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	w.Write([]byte(nextDate))
-}
-
 func AddTask(w http.ResponseWriter, r *http.Request) {
 	var buf bytes.Buffer
 	var task store.Task
@@ -74,7 +47,8 @@ func AddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err = checkTask(task)
+	task, err = service.CheckTask(task)
+
 	if err != nil {
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusBadRequest)
 		return
@@ -158,7 +132,7 @@ func EditTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err = checkTask(task)
+	task, err = service.CheckTask(task)
 	if err != nil {
 		makeHttpResponse(w, ErrorResponse{Error: err.Error()}, http.StatusBadRequest)
 		return
@@ -260,19 +234,30 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	makeHttpResponse(w, emptyResponse, http.StatusOK)
 }
 
-func checkTask(t store.Task) (store.Task, error) {
-	if t.Title == "" {
-		return t, errors.New("task title is not specified")
+func NextDateHandler(w http.ResponseWriter, r *http.Request) {
+	nowParam := r.URL.Query().Get("now")
+	dateParam := r.URL.Query().Get("date")
+	repeatParam := r.URL.Query().Get("repeat")
+
+	now, err := time.Parse("20060102", nowParam)
+	if err != nil {
+		http.Error(w, "Invalid 'now' parameter", http.StatusBadRequest)
+		return
 	}
 
-	if t.Date != "" {
-		_, err := time.Parse("20060102", t.Date)
-
-		if err != nil {
-			return t, errors.New("invalid date format")
-		}
+	_, err = time.Parse("20060102", dateParam)
+	if err != nil {
+		http.Error(w, "Invalid 'date' parameter", http.StatusBadRequest)
+		return
 	}
-	return t, nil
+
+	nextDate, err := service.NextDate(now, dateParam, repeatParam)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Write([]byte(nextDate))
 }
 
 func makeHttpResponse(w http.ResponseWriter, response any, status int) {

@@ -17,6 +17,21 @@ func SetTaskStore(ts store.TaskStore) {
 	taskStore = ts
 }
 
+func CheckTask(t store.Task) (store.Task, error) {
+	if t.Title == "" {
+		return t, errors.New("task title is not specified")
+	}
+
+	if t.Date != "" {
+		_, err := time.Parse("20060102", t.Date)
+
+		if err != nil {
+			return t, errors.New("invalid date format")
+		}
+	}
+	return t, nil
+}
+
 func NextDate(now time.Time, strDate string, repeat string) (string, error) {
 	if repeat == "" {
 		return "", errors.New("repeat rule not specified")
