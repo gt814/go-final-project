@@ -1,0 +1,36 @@
+name: Go
+
+on: push
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v4
+
+    - name: Build
+      run: go build -v ./...
+
+  tests:
+    # Задание "tests" зависит от задания "build" и будет выполнено после него
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v4
+    - uses: JarvusInnovations/background-action@v1
+      name: Bootstrap System Under Test (SUT)
+      with:
+        run: |
+          go run main.go
+        wait-on: |
+            http://localhost:7540
+        tail: true # true = stderr,stdout
+        log-output-resume: stderr
+        wait-for: 5m
+        log-output: stderr,stdout # same as true
+
+    - name: Test
+      run: go test -v ./...
