@@ -1,12 +1,14 @@
 package main
 
 import (
-	_ "github.com/mattn/go-sqlite3"
 	"go-final-project/api"
 	"go-final-project/config"
+	"go-final-project/service"
 	"go-final-project/store"
 	"log"
 	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
@@ -18,7 +20,7 @@ func main() {
 	}
 	defer db.Close()
 
-	api.SetTaskStore(store.NewTaskStore(db))
+	service.SetTaskStore(store.NewTaskStore(db))
 
 	//Initialize routing
 	r := api.GetRouter()
